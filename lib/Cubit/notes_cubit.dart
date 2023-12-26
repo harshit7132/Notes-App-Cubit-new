@@ -24,13 +24,24 @@ class NotesCubit extends Cubit<NotesState> {
     emit(LoadedState(arrnotes: notes));
   }
 
-  void deleteNotes(NotesModel index,List<NotesModel>?arrnotes)async{
-    emit(LoadingState());
-    if(index.id==-1){
-      dbHelper.deleteNotes(index as int);
-      emit(LoadedState());
+  Future<void> updateData(int id, String title, String desc) async {
+    bool check = await dbHelper
+        .updateNotes(NotesModel(id: id, title: title, desc: desc));
+    if (check) {
+      emit(LoadedState(arrnotes: await dbHelper.getData()));
+    } else {
+      print("Data Not update");
     }
-    else{
+  }
+
+  Future<void> deleteNotes(
+    int index,
+  ) async {
+    emit(LoadingState());
+    bool check = await dbHelper.deleteNotes(index);
+    if (check) {
+      emit(LoadedState(arrnotes: await dbHelper.getData()));
+    } else {
       emit(ErrorState(errormsg: "An Error Occured"));
     }
   }
